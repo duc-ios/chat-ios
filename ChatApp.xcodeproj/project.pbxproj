@@ -35,6 +35,8 @@
 		8974EC132C72775100311096 /* User+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974EC122C72775100311096 /* User+Extensions.swift */; };
 		8974EC162C72811500311096 /* ConversationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974EC152C72811500311096 /* ConversationModel.swift */; };
 		8974EC182C7389C300311096 /* Num+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8974EC172C7389C300311096 /* Num+Extensions.swift */; };
+		89A0230C2C76359300806BDE /* launch-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 89A0230A2C76359300806BDE /* launch-icon@3x.png */; };
+		89A0230D2C76359300806BDE /* launch-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 89A0230B2C76359300806BDE /* launch-icon@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +65,8 @@
 		8974EC122C72775100311096 /* User+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+Extensions.swift"; sourceTree = "<group>"; };
 		8974EC152C72811500311096 /* ConversationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationModel.swift; sourceTree = "<group>"; };
 		8974EC172C7389C300311096 /* Num+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Num+Extensions.swift"; sourceTree = "<group>"; };
+		89A0230A2C76359300806BDE /* launch-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "launch-icon@3x.png"; sourceTree = "<group>"; };
+		89A0230B2C76359300806BDE /* launch-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "launch-icon@2x.png"; sourceTree = "<group>"; };
 		89AD00472C74802000D0A316 /* LOCAL.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = LOCAL.xcconfig; sourceTree = "<group>"; };
 		89AD00482C74802900D0A316 /* PRD.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PRD.xcconfig; sourceTree = "<group>"; };
 		89AD004D2C74812400D0A316 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -147,6 +151,8 @@
 			isa = PBXGroup;
 			children = (
 				8974EBD42C71747B00311096 /* Assets.xcassets */,
+				89A0230B2C76359300806BDE /* launch-icon@2x.png */,
+				89A0230A2C76359300806BDE /* launch-icon@3x.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -315,6 +321,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				89A0230D2C76359300806BDE /* launch-icon@2x.png in Resources */,
+				89A0230C2C76359300806BDE /* launch-icon@3x.png in Resources */,
 				8974EBD82C71747B00311096 /* Preview Assets.xcassets in Resources */,
 				8974EBD52C71747B00311096 /* Assets.xcassets in Resources */,
 			);
@@ -494,7 +502,6 @@
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Photo Library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -532,7 +539,6 @@
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Photo Library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -634,7 +640,6 @@
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Photo Library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -729,7 +734,6 @@
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Photo Library";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
