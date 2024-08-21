@@ -9,11 +9,12 @@ import ExyteChat
 import Foundation
 
 struct UserModel: Codable, Hashable, Identifiable {
-    let id: String
-    let socketId: String?
+    let id: Int
+    var socketId: String?
     var jwt: String?
     let username: String
     let avatar: URL?
+    var isActive: Bool = false
 
     enum CodingKeys: CodingKey {
         case id,
@@ -25,17 +26,14 @@ struct UserModel: Codable, Hashable, Identifiable {
 
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let id = try? container.decode(Int.self, forKey: .id) {
-            self.id = String(id)
-        } else {
-            self.id = try String(container.decode(String.self, forKey: .id))
-        }
-        self.socketId = try? container.decode(String.self, forKey: .socketId)
-        self.jwt = try? container.decode(String.self, forKey: .jwt)
-        self.username = try container.decode(String.self, forKey: .username)
-        let avatar = try? container.decode(Avatar.self, forKey: .avatar)
-        if let avatar {
-            self.avatar = UserSettings.baseUrl.appending(path: avatar.formats.thumbnail.url)
+        self.id = try container.decode(.id)
+        self.socketId = try container.decodeIfPresent(.socketId)
+        self.jwt = try container.decodeIfPresent(.jwt)
+        self.username = try container.decode(.username)
+        if let avatar: Avatar = try? container.decode(.avatar) {
+            self.avatar = AppEnvironment.baseUrl.appending(path: avatar.formats.thumbnail.url)
+        } else if let avatar: String = try? container.decode(.avatar) {
+            self.avatar = AppEnvironment.baseUrl.appending(path: avatar)
         } else {
             self.avatar = nil
         }
@@ -43,7 +41,7 @@ struct UserModel: Codable, Hashable, Identifiable {
 
     func toUser() -> User {
         User(
-            id: id,
+            id: id.stringValue,
             name: username,
             avatarURL: avatar,
             isCurrentUser: id == UserSettings.me?.id

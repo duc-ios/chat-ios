@@ -10,7 +10,7 @@ import ExyteChat
 extension User {
     var isMe: Bool {
         if let me = UserSettings.me {
-            return id == me.id
+            return id == me.id.stringValue
         }
         return false
     }

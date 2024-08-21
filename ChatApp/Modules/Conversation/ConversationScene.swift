@@ -34,7 +34,7 @@ enum ConversationAction: MessageMenuAction {
 }
 
 struct ConversationScene: View {
-    @ObservedObject var viewModel = ConversationSceneModel()
+    @ObservedObject var viewModel = ConversationViewModel()
 
     var body: some View {
         ChatView(messages: viewModel.messages, didSendMessage: {
@@ -90,40 +90,23 @@ struct ConversationScene: View {
                 },
                 message: { Text($0.message) }
             )
-            .onAppear {
-                viewModel.findConversation()
-            }
             .navigationTitle(viewModel.conversation?.name ?? "")
             .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 extension ConversationScene {
-    func configure(recipent: UserModel) -> Self {
-        viewModel.configure(recipent: recipent)
+    func configure(conversation: ConversationModel) -> Self {
+        viewModel.configure(conversation: conversation)
         return self
     }
 }
 
 #Preview {
-    ConversationScene().configure(recipent: try! UserModel([
+    ConversationScene().configure(conversation: try! ConversationModel([
         "id": 1,
-        "socketId": "",
-        "username": "duc",
-        "avatar": [
-            "large": [
-                "url": "/uploads/large_pexels_ali_pazani_4407688_0f1f37b58d.jpeg"
-            ],
-            "medium": [
-                "url": "/uploads/medium_pexels_ali_pazani_4407688_0f1f37b58d.jpeg"
-            ],
-            "small": [
-                "url": "/uploads/small_pexels_ali_pazani_4407688_0f1f37b58d.jpeg"
-            ],
-            "thumbnail": [
-                "url": "/uploads/thumbnail_pexels_ali_pazani_4407688_0f1f37b58d.jpeg"
-            ]
-        ]
+        "refId": "1_2",
+        "name": "1_2"
     ]))
     .environmentObject(Router())
 }

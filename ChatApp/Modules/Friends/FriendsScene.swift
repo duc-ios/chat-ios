@@ -9,7 +9,7 @@ import Kingfisher
 import SwiftUI
 
 struct FriendsScene: View {
-    @ObservedObject var viewModel = FriendsSceneModel()
+    @ObservedObject var viewModel = FriendsViewModel()
     @EnvironmentObject var router: Router
 
     var body: some View {
@@ -18,41 +18,35 @@ struct FriendsScene: View {
                 Text("No friends online")
             } else {
                 List {
-                    ForEach(viewModel.friends) { user in
-                        NavigationLink(value: Route.conversation(user)) {
-                            HStack {
-                                CircleAvatar(url: user.avatar)
-                                Text(user.username)
+                    ForEach(viewModel.friends) { friend in
+                        return HStack {
+                            ZStack(alignment: .topTrailing) {
+                                CircleAvatar(url: friend.avatar)
+                                ZStack {
+                                    Circle().fill(.green)
+                                    Circle().strokeBorder(.white, lineWidth: 2)
+                                }
+                                .frame(width: 12, height: 12)
                             }
+                            Text(friend.username)
                         }
                     }
                 }
             }
         }
         .alert(
-            isPresented: $viewModel.showError,
+            isPresented: self.$viewModel.showError,
             error: viewModel.error,
             actions: { _ in
                 Button("OK") {}
             },
             message: { Text($0.message) }
         )
-//        .onAppear {
-//            viewModel.findFriends()
-//        }
-        .navigationBarBackButtonHidden()
         .navigationTitle("Friends")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Logout") {
-                    viewModel.logout()
-                }
-            }
-        }
         .onChange(of: viewModel.state) {
             switch $0 {
             case .loggedOut:
-                router.pop(to: .login)
+                self.router.pop(to: .login)
             default:
                 break
             }
@@ -63,4 +57,12 @@ struct FriendsScene: View {
 #Preview {
     FriendsScene()
         .environmentObject(Router())
+}
+
+extension Shape {
+    func fill<Fill: ShapeStyle, Stroke: ShapeStyle>(_ fillStyle: Fill, strokeBorder strokeStyle: Stroke, lineWidth: Double = 1) -> some View {
+        self
+            .stroke(strokeStyle, lineWidth: lineWidth)
+            .background(self.fill(fillStyle))
+    }
 }

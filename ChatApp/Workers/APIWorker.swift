@@ -10,7 +10,7 @@ import SwiftyJSON
 
 class APIWorker {
     func buildUrl(path: String) -> URL {
-        UserSettings.baseUrl.appending(path: path)
+        AppEnvironment.baseUrl.appending(path: path)
     }
 
     func buildRequest(method: String, path: String, queries: [String: String?]? = nil, body: [String: Any]? = nil) throws -> URLRequest {
@@ -49,7 +49,7 @@ class APIWorker {
         let (data, response) = try await URLSession.shared.data(for: request)
         let json = JSON(data)
         logger.debug(json)
-        
+
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
             if let message = json["error"]["message"].string {
                 throw AppError.message(message)

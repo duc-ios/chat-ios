@@ -18,10 +18,11 @@ struct StrapiChatApp: App {
         WindowGroup {
             NavigationStack(path: $router.path) {
                 ProgressView()
+                    .scaleEffect(.init(width: 2, height: 2))
                     .onAppear {
                         if UserSettings.isLoggedIn {
                             AppSocketManager.default.connect()
-                            router.pop(to: .friends)
+                            router.pop(to: .conversations)
                         } else {
                             router.pop(to: .login)
                         }
@@ -32,9 +33,12 @@ struct StrapiChatApp: App {
                             LoginScene()
                         case .friends:
                             FriendsScene()
-                        case .conversation(let user):
+                        case .conversations:
+                            ConversationsScene()
+                                .configure()
+                        case .conversation(let conversation):
                             ConversationScene()
-                                .configure(recipent: user)
+                                .configure(conversation: conversation)
                         }
                     }
             }
@@ -56,8 +60,7 @@ extension UINavigationController {
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool
-    {
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         return true
     }
 }

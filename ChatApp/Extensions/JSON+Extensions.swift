@@ -10,7 +10,7 @@ import SwiftyJSON
 
 extension JSONDecoder {
     private static let association = ObjectAssociation<JSONDecoder>()
-    
+
     static var snakeCase: JSONDecoder {
         get {
             if let decoder = JSONDecoder.association[self] {
@@ -27,7 +27,7 @@ extension JSONDecoder {
 
 extension JSONEncoder {
     private static let association = ObjectAssociation<JSONEncoder>()
-    
+
     static var snakeCase: JSONEncoder {
         get {
             if let decoder = JSONEncoder.association[self] {

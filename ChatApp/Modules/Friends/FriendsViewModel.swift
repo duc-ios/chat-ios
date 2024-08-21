@@ -1,5 +1,5 @@
 //
-//  FriendsSceneModel.swift
+//  FriendsViewModel.swift
 //  StrapiChat
 //
 //  Created by Duc on 18/8/24.
@@ -9,52 +9,61 @@ import ExyteChat
 import SwiftUI
 import SwiftyJSON
 
-class FriendsSceneModel: ObservableObject {
+final class FriendsViewModel: BaseViewModel {
     enum State {
         case loggedOut
     }
-    
+
     @Published var state: State?
-    @Published var error: AppError?
-    @Published var showError = false
-        
     let worker = ConversationWorker()
     @Published var friends = [UserModel]()
-    
-    init() {
+
+    override init() {
+        super.init()
         AppSocketManager.default.on("users") { [weak self] data, _ in
             guard let self else { return }
             if let data = data.first {
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
                     do {
-                        friends = try [UserModel](data).filter { $0.id != UserSettings.me?.id }
+                        let activeFriends = try [UserModel](data).map { $0.id }
+                        for idx in 0..<friends.count {
+                            friends[idx].isActive = activeFriends.contains(friends[idx].id)
+                        }
                     } catch {
                         showError(.error(error))
                     }
                 }
             }
         }
+
+        findFriends()
     }
-    
+
     deinit {
         cleanup()
     }
-    
+
     func cleanup() {
         AppSocketManager.default.off("users")
     }
 
-    func showError(_ error: AppError) {
-        Task { @MainActor in
-            self.error = error
-            showError = true
-        }
-    }
-    
+    @MainActor
     func logout() {
         cleanup()
         UserSettings.me = nil
         state = .loggedOut
+    }
+
+    func findFriends() {
+        Task { [weak self] in
+            guard let self else { return }
+            switch await worker.findFriends() {
+            case .success(let friends):
+                self.friends = friends
+            case .failure(let error):
+                showError(error)
+            }
+        }
     }
 }

@@ -10,8 +10,8 @@ import Foundation
 import SwiftyJSON
 
 class ConversationWorker: APIWorker {
-    private var users = [String: UserModel]()
-    
+    private var users = [Int: UserModel]()
+
     func login(identifier: String, password: String) async -> Result<UserModel, AppError> {
         do {
             let json = try await request(
@@ -21,7 +21,7 @@ class ConversationWorker: APIWorker {
                     "identifier": identifier,
                     "password": password
                 ])
-            var user = try UserModel(json["user"].rawData())
+            var user = try UserModel(json["user"].rawValue)
             user.jwt = json["jwt"].stringValue
             UserSettings.me = user
             return .success(user)
@@ -30,27 +30,27 @@ class ConversationWorker: APIWorker {
             return .failure(.error(error))
         }
     }
-    
-    func findConversation(recipentId: String?) async -> Result<ConversationModel, AppError> {
+
+    func findConversation(recipentId: Int?) async -> Result<ConversationModel, AppError> {
         do {
             let json = try await request(
                 method: "GET",
                 path: "api/conversations",
                 queries: [
-                    "filters[recipentId]": recipentId
+                    "filters[recipentId]": recipentId?.stringValue
                 ])
-            
+
             let data = json["data"]
             if data.isEmpty {
                 return .failure(.message("404 Not Found"))
             } else {
-                return try .success(ConversationModel(data[0].rawData()))
+                return try .success(ConversationModel(data[0].rawValue))
             }
         } catch {
             return .failure(.error(error))
         }
     }
-    
+
     func findMessages(refId: String) async throws -> [Message] {
         let json = try await request(method: "GET", path: "api/messages", queries: [
             "populate": "sender",
@@ -65,7 +65,7 @@ class ConversationWorker: APIWorker {
         }
         return messages.reversed()
     }
-    
+
     @discardableResult
     func send(text: String, to conversationRefId: String) async throws -> String {
         let json = try await request(
@@ -80,10 +80,10 @@ class ConversationWorker: APIWorker {
             ])
         return json["data"]["id"].stringValue
     }
-    
+
     func buildMessage(json: JSON) async throws -> Message {
-        let senderId = json["sender"]["id"].stringValue
-        let user = try await findUser(id: senderId.isEmpty ? UserSettings.me!.id : senderId)
+        let senderId = json["sender"]["id"].intValue
+        let user = try await findUser(id: senderId == 0 ? UserSettings.me!.id : senderId)
         let message = Message(
             id: json["id"].stringValue,
             user: user.toUser(),
@@ -91,10 +91,10 @@ class ConversationWorker: APIWorker {
             text: json["content"].stringValue)
         return message
     }
-    
-    func findUser(id: String) async throws -> UserModel {
+
+    func findUser(id: Int) async throws -> UserModel {
         if let user = users[id] { return user }
-        
+
         let json = try await request(
             method: "GET",
             path: "api/users/\(id)",
@@ -103,7 +103,7 @@ class ConversationWorker: APIWorker {
         users[id] = user
         return user
     }
-    
+
     func findFriends() async -> Result<[UserModel], AppError> {
         do {
             let json = try await request(
@@ -111,7 +111,7 @@ class ConversationWorker: APIWorker {
                 path: "api/users",
                 queries: [
                     "populate": "avatar",
-                    "filters[id][$ne]": UserSettings.me!.id
+                    "filters[id][$ne]": UserSettings.me?.id.stringValue
                 ])
             let friends = try json.arrayValue.map {
                 let user = try UserModel($0)
@@ -119,6 +119,17 @@ class ConversationWorker: APIWorker {
                 return user
             }
             return .success(friends)
+        } catch {
+            return .failure(.error(error))
+        }
+    }
+
+    func findConversations() async -> Result<[ConversationModel], AppError> {
+        do {
+            let json = try await request(
+                method: "GET",
+                path: "api/conversations")
+            return try .success([ConversationModel](json["data"].rawValue))
         } catch {
             return .failure(.error(error))
         }

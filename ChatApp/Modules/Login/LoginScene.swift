@@ -10,7 +10,7 @@ import SwiftUI
 struct LoginScene: View {
     @EnvironmentObject var router: Router
 
-    @ObservedObject var viewModel = LoginSceneModel()
+    @ObservedObject var viewModel = LoginViewModel()
 
     @State var identifier = ""
     @State var password = ""

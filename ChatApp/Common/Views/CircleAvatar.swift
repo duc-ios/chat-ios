@@ -25,7 +25,7 @@ struct CircleAvatar: View {
 }
 
 #Preview {
-    CircleAvatar(url: UserSettings.baseUrl.appending(path: "uploads/thumbnail_pexels_maksim_goncharenok_4757976_4882351252.jpeg"))
+    CircleAvatar(url: AppEnvironment.baseUrl.appending(path: "uploads/thumbnail_pexels_maksim_goncharenok_4757976_4882351252.jpeg"))
 }
 
 extension Color {

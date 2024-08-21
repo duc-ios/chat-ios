@@ -9,7 +9,7 @@ import ExyteChat
 import Foundation
 
 enum Route: Hashable {
-    case login, friends, conversation(UserModel)
+    case login, friends, conversations, conversation(ConversationModel)
 }
 
 class Router: ObservableObject {

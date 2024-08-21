@@ -12,8 +12,12 @@ struct AppSocketManager {
     static let `default` = AppSocketManager()
 
     private let manager = SocketManager(
-        socketURL: UserSettings.baseUrl,
-        config: [.logger(logger), .compress])
+        socketURL: AppEnvironment.baseUrl,
+        config: [
+            .logger(logger),
+            .compress,
+            .reconnects(true)
+        ])
 
     var socket: SocketIOClient { manager.defaultSocket }
 
@@ -24,6 +28,22 @@ struct AppSocketManager {
             logger.error(AppError.unauthenticated)
             return
         }
+
+        socket.on("statusChange") { data, emitter in
+            logger.debug(data)
+            logger.debug(emitter)
+            if let status = data.first as? SocketIOStatus {
+                switch status {
+                case .connected:
+                    UserSettings.me?.socketId = socket.manager?.engine?.sid
+                case .disconnected:
+                    UserSettings.me?.socketId = nil
+                default:
+                    break
+                }
+            }
+        }
+
         socket.connect(withPayload: [
             "socketId": me.socketId as Any,
             "token": jwt

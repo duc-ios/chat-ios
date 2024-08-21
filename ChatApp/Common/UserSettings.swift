@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 
 enum UserSettings {
-    static let baseUrl = URL(string: Bundle.main.object(forInfoDictionaryKey: "BASE_URL") as! String)!
     static var isLoggedIn: Bool {
         if let me = UserSettings.me, me.jwt.isNotNilOrBlank {
             return true
@@ -31,4 +30,13 @@ enum UserSettings {
             _me = try? newValue?.rawData()
         }
     }
+}
+
+enum AppEnvironment {
+    static subscript<T>(_ key: String) -> T? {
+        Bundle.main.object(forInfoDictionaryKey: key) as? T
+    }
+
+    static let BASE_URL = "BASE_URL"
+    static let baseUrl: URL = URL(string: AppEnvironment[BASE_URL]!)!
 }

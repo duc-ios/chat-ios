@@ -1,5 +1,5 @@
 //
-//  LoginSceneModel.swift
+//  LoginViewModel.swift
 //  StrapiChat
 //
 //  Created by Duc on 19/8/24.
@@ -7,24 +7,16 @@
 
 import Foundation
 
-class LoginSceneModel: ObservableObject {
+final class LoginViewModel: BaseViewModel {
     enum State {
         case loggedIn
     }
 
     @Published var state: State?
-    @Published var error: AppError?
-    @Published var showError = false
 
     let worker = ConversationWorker()
 
-    func showError(_ error: AppError) {
-        Task { @MainActor in
-            self.error = error
-            showError = true
-        }
-    }
-
+    @MainActor
     func login(identifier: String, password: String) {
         Task { [weak self] in
             guard let self else { return }
