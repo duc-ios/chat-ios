@@ -16,6 +16,12 @@ struct LoginScene: View {
     @State var password = ""
 
     var body: some View {
+        LoadingView(isVisible: $viewModel.isLoading) {
+            content
+        }
+    }
+
+    @ViewBuilder var content: some View {
         VStack(alignment: .center) {
             VStack {
                 Spacer().frame(height: 32)
@@ -59,7 +65,7 @@ struct LoginScene: View {
         .onChange(of: viewModel.state) { value in
             switch value {
             case .loggedIn:
-                router.pop(to: .friends)
+                router.pop(to: .conversations)
             default:
                 break
             }

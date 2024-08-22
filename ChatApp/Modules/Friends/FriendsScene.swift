@@ -19,14 +19,16 @@ struct FriendsScene: View {
             } else {
                 List {
                     ForEach(viewModel.friends) { friend in
-                        return HStack {
+                        HStack {
                             ZStack(alignment: .topTrailing) {
                                 CircleAvatar(url: friend.avatar)
-                                ZStack {
-                                    Circle().fill(.green)
-                                    Circle().strokeBorder(.white, lineWidth: 2)
+                                if friend.isActive {
+                                    ZStack {
+                                        Circle().fill(.green)
+                                        Circle().strokeBorder(.white, lineWidth: 2)
+                                    }
+                                    .frame(width: 12, height: 12)
                                 }
-                                .frame(width: 12, height: 12)
                             }
                             Text(friend.username)
                         }
@@ -35,7 +37,7 @@ struct FriendsScene: View {
             }
         }
         .alert(
-            isPresented: self.$viewModel.showError,
+            isPresented: $viewModel.showError,
             error: viewModel.error,
             actions: { _ in
                 Button("OK") {}
@@ -61,8 +63,7 @@ struct FriendsScene: View {
 
 extension Shape {
     func fill<Fill: ShapeStyle, Stroke: ShapeStyle>(_ fillStyle: Fill, strokeBorder strokeStyle: Stroke, lineWidth: Double = 1) -> some View {
-        self
-            .stroke(strokeStyle, lineWidth: lineWidth)
-            .background(self.fill(fillStyle))
+        stroke(strokeStyle, lineWidth: lineWidth)
+            .background(fill(fillStyle))
     }
 }

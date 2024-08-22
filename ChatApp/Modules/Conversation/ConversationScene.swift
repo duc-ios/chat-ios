@@ -11,7 +11,7 @@ import SocketIO
 import SwiftUI
 import SwiftyJSON
 
-enum ConversationAction: MessageMenuAction {
+enum MessageAction: MessageMenuAction {
     case reply, edit
 
     func title() -> String {
@@ -37,10 +37,23 @@ struct ConversationScene: View {
     @ObservedObject var viewModel = ConversationViewModel()
 
     var body: some View {
-        ChatView(messages: viewModel.messages, didSendMessage: {
-            viewModel.send(draft: $0)
-        }).setAvailableInput(.textOnly)
-
+        ChatView(
+            messages: viewModel.messages.compactMap { $0.toMessage() },
+            didSendMessage: {
+                viewModel.send(text: $0.text)
+            },
+            messageMenuAction: { (action: MessageAction, defaultActionClosure, message) in
+                switch action {
+                case .reply:
+                    defaultActionClosure(message, .reply)
+                case .edit:
+                    defaultActionClosure(message, .edit { editedText in
+                        viewModel.send(id: message.id, text: editedText)
+                    })
+                }
+            }
+        )
+        .setAvailableInput(.textOnly)
 //        , inputViewBuilder: { text, _, inputViewState, inputViewStyle, inputViewActionClosure, _ in
 //            Group {
 //                switch inputViewStyle {
@@ -70,28 +83,27 @@ struct ConversationScene: View {
 //                    .padding()
 //                }
 //            }
-//        }, messageMenuAction: { (action: ConversationAction, defaultActionClosure, message) in
-//            switch action {
-//            case .reply:
-//                defaultActionClosure(message, .reply)
-//            case .edit:
-//                defaultActionClosure(message, .edit { editedText in
-//                    // update this message's text on your BE
-//                    logger.debug(editedText)
-//                })
-//            }
 //        })
-
-            .alert(
-                isPresented: $viewModel.showError,
-                error: viewModel.error,
-                actions: { _ in
-                    Button("OK") {}
-                },
-                message: { Text($0.message) }
-            )
-            .navigationTitle(viewModel.conversation?.name ?? "")
-            .navigationBarTitleDisplayMode(.inline)
+        .alert(
+            isPresented: $viewModel.showError,
+            error: viewModel.error,
+            actions: { _ in
+                Button("OK") {}
+            },
+            message: { Text($0.message) }
+        )
+        .navigationTitle(viewModel.conversation?.name ?? "")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert(
+            isPresented: $viewModel.showError,
+            error: viewModel.error,
+            actions: { _ in
+                Button("OK") {}
+            },
+            message: { Text($0.message) }
+        )
+        .navigationTitle(viewModel.conversation?.name ?? "")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -106,7 +118,7 @@ extension ConversationScene {
     ConversationScene().configure(conversation: try! ConversationModel([
         "id": 1,
         "refId": "1_2",
-        "name": "1_2"
+        "name": "1_2",
     ]))
     .environmentObject(Router())
 }

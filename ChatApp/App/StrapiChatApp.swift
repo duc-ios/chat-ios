@@ -5,23 +5,34 @@
 //  Created by Duc on 18/8/24.
 //
 
-import ExyteChat
+import ActivityIndicatorView
 import SwiftUI
+
+// MARK: - StrapiChatApp
 
 @main
 struct StrapiChatApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
-    @ObservedObject var router = Router()
+    @ObservedObject var router = {
+        let router = Router()
+        ServiceLocator[Router.self] = router
+        return router
+    }()
+
+    @ObservedObject var userSettings = {
+        let userSettings = UserSettings()
+        ServiceLocator[UserSettings.self] = userSettings
+        return userSettings
+    }()
 
     var body: some Scene {
         WindowGroup {
             NavigationStack(path: $router.path) {
-                ProgressView()
-                    .scaleEffect(.init(width: 2, height: 2))
+                LoadingView {}
                     .onAppear {
-                        if UserSettings.isLoggedIn {
-                            AppSocketManager.default.connect()
+                        if userSettings.isLoggedIn {
+                            let _ = AppSocketManager.default.connect()
                             router.pop(to: .conversations)
                         } else {
                             router.pop(to: .login)
@@ -36,31 +47,26 @@ struct StrapiChatApp: App {
                         case .conversations:
                             ConversationsScene()
                                 .configure()
-                        case .conversation(let conversation):
+                        case let .conversation(conversation):
                             ConversationScene()
                                 .configure(conversation: conversation)
                         }
                     }
             }
             .environmentObject(router)
+            .environmentObject(userSettings)
             .preferredColorScheme(.light)
         }
     }
 }
 
-extension UINavigationController {
-    override open func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-
-        // hide back button text
-        navigationBar.topItem?.backButtonDisplayMode = .minimal
-    }
-}
+// MARK: - AppDelegate
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        _: UIApplication,
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
         return true
     }
 }

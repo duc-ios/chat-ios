@@ -8,14 +8,24 @@
 import ExyteChat
 import Foundation
 
-struct UserModel: Codable, Hashable, Identifiable {
+// MARK: - UserModel
+
+struct UserModel {
     let id: Int
     var socketId: String?
     var jwt: String?
     let username: String
     let avatar: URL?
     var isActive: Bool = false
+}
 
+// MARK: Hashable, Identifiable
+
+extension UserModel: Hashable, Identifiable {}
+
+// MARK: Codable
+
+extension UserModel: Codable {
     enum CodingKeys: CodingKey {
         case id,
              socketId,
@@ -26,16 +36,16 @@ struct UserModel: Codable, Hashable, Identifiable {
 
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(.id)
-        self.socketId = try container.decodeIfPresent(.socketId)
-        self.jwt = try container.decodeIfPresent(.jwt)
-        self.username = try container.decode(.username)
+        id = try container.decode(.id)
+        socketId = try container.decodeIfPresent(.socketId)
+        jwt = try container.decodeIfPresent(.jwt)
+        username = try container.decode(.username)
         if let avatar: Avatar = try? container.decode(.avatar) {
             self.avatar = AppEnvironment.baseUrl.appending(path: avatar.formats.thumbnail.url)
         } else if let avatar: String = try? container.decode(.avatar) {
             self.avatar = AppEnvironment.baseUrl.appending(path: avatar)
         } else {
-            self.avatar = nil
+            avatar = nil
         }
     }
 
@@ -44,10 +54,12 @@ struct UserModel: Codable, Hashable, Identifiable {
             id: id.stringValue,
             name: username,
             avatarURL: avatar,
-            isCurrentUser: id == UserSettings.me?.id
+            isCurrentUser: id == ServiceLocator[UserSettings.self]?.me?.id
         )
     }
 }
+
+// MARK: - Avatar
 
 struct Avatar: Codable {
     struct Formats: Codable {

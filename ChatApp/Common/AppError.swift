@@ -10,8 +10,9 @@ import Foundation
 enum AppError: LocalizedError {
     case
         unexpected,
-        unauthenticated,
-        message(String),
+        unauthorized,
+        server,
+        message(code: Int, message: String),
         error(Error)
 
     var errorDescription: String? { "Error!" }
@@ -20,11 +21,13 @@ enum AppError: LocalizedError {
         switch self {
         case .unexpected:
             return "Something went wrong. Try again later!"
-        case .unauthenticated:
-            return "Unauthenticated"
-        case .message(let string):
-            return string
-        case .error(let error):
+        case .unauthorized:
+            return "Unauthorized"
+        case .server:
+            return "Service Unavailable"
+        case let .message(code, message):
+            return "\(code): \(message)"
+        case let .error(error):
             if let error = error as? AppError {
                 return error.message
             } else {

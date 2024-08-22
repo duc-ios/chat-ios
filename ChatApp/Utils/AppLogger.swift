@@ -16,18 +16,20 @@ class AppLogger: SocketLogger {
     var log: Bool = true
 
     func debug(_ message: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-        logger.debug("💙\((file as NSString).lastPathComponent):\(line):\(function)) \(String(describing: message))")
+        #if DEBUG
+            logger.debug("💙\((file as NSString).lastPathComponent):\(line):\(function)) \(message)")
+        #endif
     }
 
     func error(_ message: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-        logger.error("❤️\((file as NSString).lastPathComponent):\(line):\(function)) \(String(describing: message))")
+        logger.error("❤️\((file as NSString).lastPathComponent):\(line):\(function)) \(message)")
     }
 
-    func log(_ message: @autoclosure @escaping () -> String, type: String) {
+    func log(_ message: @autoclosure @escaping () -> String, type _: String) {
         debug(message())
     }
 
-    func error(_ message: @autoclosure @escaping () -> String, type: String) {
+    func error(_ message: @autoclosure @escaping () -> String, type _: String) {
         error(message())
     }
 }

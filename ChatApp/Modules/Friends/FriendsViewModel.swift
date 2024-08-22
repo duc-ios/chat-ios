@@ -5,7 +5,6 @@
 //  Created by Duc on 18/8/24.
 //
 
-import ExyteChat
 import SwiftUI
 import SwiftyJSON
 
@@ -18,6 +17,8 @@ final class FriendsViewModel: BaseViewModel {
     let worker = ConversationWorker()
     @Published var friends = [UserModel]()
 
+    private var activeUserIds = [Int]()
+
     override init() {
         super.init()
         AppSocketManager.default.on("users") { [weak self] data, _ in
@@ -26,9 +27,9 @@ final class FriendsViewModel: BaseViewModel {
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
                     do {
-                        let activeFriends = try [UserModel](data).map { $0.id }
-                        for idx in 0..<friends.count {
-                            friends[idx].isActive = activeFriends.contains(friends[idx].id)
+                        activeUserIds = try [UserModel](data).map { $0.id }
+                        for idx in 0 ..< friends.count {
+                            friends[idx].isActive = activeUserIds.contains(friends[idx].id)
                         }
                     } catch {
                         showError(.error(error))
@@ -48,20 +49,16 @@ final class FriendsViewModel: BaseViewModel {
         AppSocketManager.default.off("users")
     }
 
-    @MainActor
-    func logout() {
-        cleanup()
-        UserSettings.me = nil
-        state = .loggedOut
-    }
-
     func findFriends() {
-        Task { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self else { return }
             switch await worker.findFriends() {
-            case .success(let friends):
+            case var .success(friends):
+                for idx in 0 ..< friends.count {
+                    friends[idx].isActive = activeUserIds.contains(friends[idx].id)
+                }
                 self.friends = friends
-            case .failure(let error):
+            case let .failure(error):
                 showError(error)
             }
         }

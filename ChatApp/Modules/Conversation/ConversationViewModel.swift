@@ -1,18 +1,17 @@
 //
-//  ConversationSceneModel.swift
+//  ConversationViewModel.swift
 //  StrapiChat
 //
 //  Created by Duc on 18/8/24.
 //
 
-import ExyteChat
 import SwiftUI
 import SwiftyJSON
 
 class ConversationViewModel: BaseViewModel {
     let worker = ConversationWorker()
 
-    @Published var messages: [Message] = []
+    @Published var messages: [MessageModel] = []
 
     var recipent: UserModel!
     var conversation: ConversationModel!
@@ -21,15 +20,15 @@ class ConversationViewModel: BaseViewModel {
     func configure(conversation: ConversationModel) {
         self.conversation = conversation
 
-        AppSocketManager.default.on("message:create") { [weak self] data, _ in
-            self?.onMessageCreate(data: data)
-        }
+        AppSocketManager.default.on("message:create", onMessageCreate)
+        AppSocketManager.default.on("message:update", onMessageUpdate)
 
         findMessages()
     }
 
     deinit {
         AppSocketManager.default.off("message:create")
+        AppSocketManager.default.off("message:update")
     }
 
     @MainActor
@@ -45,28 +44,52 @@ class ConversationViewModel: BaseViewModel {
         }
     }
 
-    func send(draft: DraftMessage) {
+    func send(id: String? = nil, text: String) {
         Task { [weak self] in
             guard let self else { return }
             do {
-                try await worker.send(text: draft.text, to: conversation.refId)
+                if let id {
+                    try await worker.update(id: id, text: text)
+                } else {
+                    try await worker.create(text: text, to: conversation.refId)
+                }
             } catch {
-                logger.error(error)
+                showError(.error(error))
             }
         }
     }
 
-    func onMessageCreate(data: [Any]) {
+    func onMessageCreate(data: [Any], emitter _: Any) {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                var messages = [Message]()
+                var messages = [MessageModel]()
                 for messageData in data {
                     let json = JSON(messageData)
                     let message = try await worker.buildMessage(json: json)
                     messages.append(message)
                 }
                 self.messages += messages
+            } catch {
+                showError(.error(error))
+            }
+        }
+    }
+
+    func onMessageUpdate(data: [Any], emitter _: Any) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                for messageData in data {
+                    let json = JSON(messageData)
+                    var message = try await worker.buildMessage(json: json)
+                    message.triggerRedraw = UUID()
+                    if let idx = messages.firstIndex(where: { $0.id == message.id }) {
+                        self.messages[idx] = message
+                    } else {
+                        messages.append(message)
+                    }
+                }
             } catch {
                 showError(.error(error))
             }

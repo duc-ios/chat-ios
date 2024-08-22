@@ -23,7 +23,7 @@ class APIWorker {
         }
         var request = URLRequest(url: requestUrl)
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        if let jwt = UserSettings.me?.jwt {
+        if let jwt = ServiceLocator[UserSettings.self]?.me?.jwt {
             request.addValue("Bearer \(jwt)", forHTTPHeaderField: "Authorization")
         }
         request.httpMethod = method
@@ -47,16 +47,27 @@ class APIWorker {
             logger.debug("body: \(body)")
         }
         let (data, response) = try await URLSession.shared.data(for: request)
+
         let json = JSON(data)
         logger.debug(json)
 
-        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+        guard let statusCode = (response as? HTTPURLResponse)?.statusCode
+        else { throw AppError.unexpected }
+
+        switch statusCode {
+        case 200:
+            return json
+        case 201 ... 400:
             if let message = json["error"]["message"].string {
-                throw AppError.message(message)
+                throw AppError.message(code: statusCode, message: message)
             } else {
                 throw AppError.unexpected
             }
+        case 401:
+            await ServiceLocator[UserSettings.self]?.logout()
+            throw AppError.unauthorized
+        default:
+            throw AppError.server
         }
-        return json
     }
 }

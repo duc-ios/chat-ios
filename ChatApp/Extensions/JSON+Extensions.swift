@@ -1,5 +1,5 @@
 //
-//  JSONDecoder+Extensions.swift
+//  JSON+Extensions.swift
 //  ChatApp
 //
 //  Created by Duc on 21/8/24.

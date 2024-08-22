@@ -16,6 +16,7 @@ extension ConversationsScene {
 struct ConversationsScene: View {
     @ObservedObject var viewModel = ConversationsViewModel()
     @EnvironmentObject var router: Router
+    @EnvironmentObject var userSettings: UserSettings
 
     var body: some View {
         Group {
@@ -24,17 +25,10 @@ struct ConversationsScene: View {
             } else {
                 List {
                     ForEach(viewModel.conversations) { conversation in
-                        let sender = conversation.participants?.first(where: { $0.id != UserSettings.me?.id })
+                        let sender = conversation.participants?.first(where: { $0.id != userSettings.me?.id })
                         return NavigationLink(value: Route.conversation(conversation)) {
                             HStack {
-                                ZStack(alignment: .topTrailing) {
-                                    CircleAvatar(url: sender?.avatar)
-                                    ZStack {
-                                        Circle().fill(.green)
-                                        Circle().strokeBorder(.white, lineWidth: 2)
-                                    }
-                                    .frame(width: 12, height: 12)
-                                }
+                                CircleAvatar(url: sender?.avatar)
                                 VStack(alignment: .leading) {
                                     Text(conversation.name ?? sender?.username ?? "").fontWeight(.semibold)
                                     if let lastMessage = conversation.lastMessage?.content {
@@ -49,7 +43,7 @@ struct ConversationsScene: View {
             }
         }
         .alert(
-            isPresented: self.$viewModel.showError,
+            isPresented: $viewModel.showError,
             error: viewModel.error,
             actions: { _ in
                 Button("OK") {}
@@ -57,7 +51,7 @@ struct ConversationsScene: View {
             message: { Text($0.message) }
         )
         .navigationBarBackButtonHidden()
-        .navigationTitle("Welcome, \(UserSettings.me?.username ?? "")")
+        .navigationTitle("Welcome, \(userSettings.me?.username ?? "")")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Friends") {
@@ -82,8 +76,10 @@ struct ConversationsScene: View {
 }
 
 #if DEBUG
-#Preview {
-    ConversationsScene()
-        .configure()
-}
+    #Preview {
+        ConversationsScene()
+            .configure()
+            .environmentObject(Router())
+            .environmentObject(UserSettings())
+    }
 #endif

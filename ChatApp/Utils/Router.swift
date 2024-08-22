@@ -5,7 +5,6 @@
 //  Created by Duc on 18/8/24.
 //
 
-import ExyteChat
 import Foundation
 
 enum Route: Hashable {
@@ -34,6 +33,6 @@ class Router: ObservableObject {
     }
 
     func popToRoot() {
-        path = []
+        path.removeLast(path.count)
     }
 }

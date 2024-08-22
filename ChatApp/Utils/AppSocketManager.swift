@@ -16,16 +16,23 @@ struct AppSocketManager {
         config: [
             .logger(logger),
             .compress,
-            .reconnects(true)
-        ])
+            .reconnects(true),
+        ]
+    )
 
     var socket: SocketIOClient { manager.defaultSocket }
 
+    @MainActor
     func connect() {
-        guard let me = UserSettings.me,
+        guard !socket.status.active,
+              let userSettings = ServiceLocator[UserSettings.self]
+        else { return }
+
+        guard let me = userSettings.me,
               let jwt = me.jwt
         else {
-            logger.error(AppError.unauthenticated)
+            logger.error(AppError.unauthorized)
+            userSettings.logout()
             return
         }
 
@@ -35,9 +42,9 @@ struct AppSocketManager {
             if let status = data.first as? SocketIOStatus {
                 switch status {
                 case .connected:
-                    UserSettings.me?.socketId = socket.manager?.engine?.sid
+                    userSettings.me?.socketId = socket.manager?.engine?.sid
                 case .disconnected:
-                    UserSettings.me?.socketId = nil
+                    userSettings.me?.socketId = nil
                 default:
                     break
                 }
@@ -46,7 +53,7 @@ struct AppSocketManager {
 
         socket.connect(withPayload: [
             "socketId": me.socketId as Any,
-            "token": jwt
+            "token": jwt,
         ])
     }
 

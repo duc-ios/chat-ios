@@ -8,6 +8,7 @@
 import Foundation
 
 class BaseViewModel: ObservableObject {
+    @Published var isLoading = false
     @Published var showError = false
     @Published var error: AppError?
 
