@@ -36,3 +36,15 @@ enum AppError: LocalizedError {
         }
     }
 }
+
+extension AppError: Hashable {
+    static func == (lhs: AppError, rhs: AppError) -> Bool {
+        lhs.errorDescription == rhs.errorDescription && lhs.message == rhs.message
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        for item in [errorDescription, message] {
+            hasher.combine(item)
+        }
+    }
+}

@@ -11,6 +11,8 @@ import SocketIO
 import SwiftUI
 import SwiftyJSON
 
+// MARK: - MessageAction
+
 enum MessageAction: MessageMenuAction {
     case reply, edit
 
@@ -33,8 +35,13 @@ enum MessageAction: MessageMenuAction {
     }
 }
 
+// MARK: - ConversationScene
+
 struct ConversationScene: View {
     @ObservedObject var viewModel = ConversationViewModel()
+
+    @State var showError = false
+    @State var error: AppError?
 
     var body: some View {
         ChatView(
@@ -85,23 +92,22 @@ struct ConversationScene: View {
 //            }
 //        })
         .alert(
-            isPresented: $viewModel.showError,
-            error: viewModel.error,
+            isPresented: $showError,
+            error: error,
             actions: { _ in
                 Button("OK") {}
             },
             message: { Text($0.message) }
         )
-        .navigationTitle(viewModel.conversation?.name ?? "")
-        .navigationBarTitleDisplayMode(.inline)
-        .alert(
-            isPresented: $viewModel.showError,
-            error: viewModel.error,
-            actions: { _ in
-                Button("OK") {}
-            },
-            message: { Text($0.message) }
-        )
+        .onChange(of: viewModel.state) {
+            switch $0 {
+            case let .error(error):
+                self.error = error
+                self.showError = true
+            default:
+                break
+            }
+        }
         .navigationTitle(viewModel.conversation?.name ?? "")
         .navigationBarTitleDisplayMode(.inline)
     }

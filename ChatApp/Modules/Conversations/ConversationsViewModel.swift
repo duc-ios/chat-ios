@@ -8,7 +8,8 @@
 import Foundation
 
 final class ConversationsViewModel: BaseViewModel {
-    enum State {
+    enum State: Hashable {
+        case error(AppError)
         case loggedOut
     }
 
@@ -75,7 +76,11 @@ final class ConversationsViewModel: BaseViewModel {
             case let .success(conversations):
                 self.conversations = conversations
             case let .failure(error):
-                showError(error)
+                state = .error(error)
+            }
+        }
+    }
+
             }
         }
     }

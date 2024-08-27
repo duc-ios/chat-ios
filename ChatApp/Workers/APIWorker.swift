@@ -55,17 +55,17 @@ class APIWorker {
         else { throw AppError.unexpected }
 
         switch statusCode {
-        case 200:
+        case 200..<400:
             return json
-        case 201 ... 400:
+        case 401:
+            await ServiceLocator[UserSettings.self]?.logout()
+            throw AppError.unauthorized
+        case 400 ..< 500:
             if let message = json["error"]["message"].string {
                 throw AppError.message(code: statusCode, message: message)
             } else {
                 throw AppError.unexpected
             }
-        case 401:
-            await ServiceLocator[UserSettings.self]?.logout()
-            throw AppError.unauthorized
         default:
             throw AppError.server
         }

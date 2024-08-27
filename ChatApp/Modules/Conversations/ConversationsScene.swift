@@ -13,10 +13,15 @@ extension ConversationsScene {
     }
 }
 
+// MARK: - ConversationsScene
+
 struct ConversationsScene: View {
     @ObservedObject var viewModel = ConversationsViewModel()
     @EnvironmentObject var router: Router
     @EnvironmentObject var userSettings: UserSettings
+
+    @State var showError = false
+    @State var error: AppError?
 
     var body: some View {
         Group {
@@ -43,8 +48,8 @@ struct ConversationsScene: View {
             }
         }
         .alert(
-            isPresented: $viewModel.showError,
-            error: viewModel.error,
+            isPresented: $showError,
+            error: error,
             actions: { _ in
                 Button("OK") {}
             },
@@ -66,6 +71,9 @@ struct ConversationsScene: View {
         }
         .onChange(of: viewModel.state) {
             switch $0 {
+            case let .error(error):
+                self.error = error
+                self.showError = true
             case .loggedOut:
                 self.router.pop(to: .login)
             default:

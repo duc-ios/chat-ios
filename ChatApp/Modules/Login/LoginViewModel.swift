@@ -8,7 +8,8 @@
 import Foundation
 
 final class LoginViewModel: BaseViewModel {
-    enum State {
+    enum State: Hashable {
+        case error(AppError)
         case loggedIn
     }
 
@@ -26,7 +27,7 @@ final class LoginViewModel: BaseViewModel {
             case .success:
                 state = .loggedIn
             case let .failure(error):
-                showError(error)
+                state = .error(error)
             }
             isLoading = false
         }

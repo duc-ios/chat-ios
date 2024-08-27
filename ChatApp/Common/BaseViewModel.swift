@@ -10,12 +10,4 @@ import Foundation
 class BaseViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var showError = false
-    @Published var error: AppError?
-
-    func showError(_ error: AppError) {
-        Task { @MainActor in
-            self.error = error
-            showError = true
-        }
-    }
 }

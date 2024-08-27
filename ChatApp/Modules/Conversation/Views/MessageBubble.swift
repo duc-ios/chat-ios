@@ -36,14 +36,14 @@ struct MessageBubble: View {
     }
 }
 
-// MARK: - SpeechBubble
+// MARK: - ChatBubbleShape
 
 struct ChatBubbleShape: Shape {
     enum Direction {
         case leading
         case trailing
     }
-    
+
     let direction: Direction
     var radius: CGFloat = 16
 

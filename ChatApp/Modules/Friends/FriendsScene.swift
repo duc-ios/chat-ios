@@ -8,9 +8,14 @@
 import Kingfisher
 import SwiftUI
 
+// MARK: - FriendsScene
+
 struct FriendsScene: View {
     @ObservedObject var viewModel = FriendsViewModel()
     @EnvironmentObject var router: Router
+
+    @State var error: AppError?
+    @State var showError = false
 
     var body: some View {
         Group {
@@ -37,22 +42,25 @@ struct FriendsScene: View {
             }
         }
         .alert(
-            isPresented: $viewModel.showError,
-            error: viewModel.error,
+            isPresented: $showError,
+            error: error,
             actions: { _ in
                 Button("OK") {}
             },
             message: { Text($0.message) }
         )
-        .navigationTitle("Friends")
         .onChange(of: viewModel.state) {
             switch $0 {
-            case .loggedOut:
-                self.router.pop(to: .login)
+            case let .error(error):
+                self.error = error
+                self.showError = true
+            case let .conversationFound(conversation):
+                self.router.pop(to: .conversation(conversation))
             default:
                 break
             }
         }
+        .navigationTitle("Friends")
     }
 }
 

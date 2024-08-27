@@ -9,14 +9,14 @@ import SwiftUI
 import SwiftyJSON
 
 final class FriendsViewModel: BaseViewModel {
-    enum State {
-        case loggedOut
+    enum State: Hashable {
+        case error(AppError)
+        case conversationFound(ConversationModel)
     }
 
     @Published var state: State?
     let worker = ConversationWorker()
     @Published var friends = [UserModel]()
-
     private var activeUserIds = [Int]()
 
     override init() {
@@ -32,7 +32,7 @@ final class FriendsViewModel: BaseViewModel {
                             friends[idx].isActive = activeUserIds.contains(friends[idx].id)
                         }
                     } catch {
-                        showError(.error(error))
+                        state = .error(.error(error))
                     }
                 }
             }
@@ -59,7 +59,11 @@ final class FriendsViewModel: BaseViewModel {
                 }
                 self.friends = friends
             case let .failure(error):
-                showError(error)
+                state = .error(error)
+            }
+        }
+    }
+
             }
         }
     }

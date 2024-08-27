@@ -12,6 +12,8 @@ struct LoginScene: View {
 
     @ObservedObject var viewModel = LoginViewModel()
 
+    @State var showError = false
+    @State var error: AppError?
     @State var identifier = ""
     @State var password = ""
 
@@ -55,15 +57,18 @@ struct LoginScene: View {
         .frame(maxHeight: .infinity)
         .background(Color.separator)
         .alert(
-            isPresented: $viewModel.showError,
-            error: viewModel.error,
+            isPresented: $showError,
+            error: error,
             actions: { _ in
                 Button("OK") {}
             },
             message: { Text($0.message) }
         )
-        .onChange(of: viewModel.state) { value in
-            switch value {
+        .onChange(of: viewModel.state) {
+            switch $0 {
+            case let .error(error):
+                self.error = error
+                self.showError = true
             case .loggedIn:
                 router.pop(to: .conversations)
             default:

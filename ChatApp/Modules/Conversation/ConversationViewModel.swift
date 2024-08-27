@@ -9,6 +9,11 @@ import SwiftUI
 import SwiftyJSON
 
 class ConversationViewModel: BaseViewModel {
+    enum State: Hashable {
+        case error(AppError)
+    }
+    
+    @Published var state: State?
     let worker = ConversationWorker()
 
     @Published var messages: [MessageModel] = []
@@ -36,10 +41,10 @@ class ConversationViewModel: BaseViewModel {
         Task { [weak self] in
             guard let self else { return }
             do {
-                let messages = try await worker.findMessages(refId: conversation.refId)
+                let messages = try await worker.findMessages(conversationId: conversation.id)
                 self.messages += messages
             } catch {
-                showError(.error(error))
+                state = .error(.error(error))
             }
         }
     }
@@ -51,10 +56,10 @@ class ConversationViewModel: BaseViewModel {
                 if let id {
                     try await worker.update(id: id, text: text)
                 } else {
-                    try await worker.create(text: text, to: conversation.refId)
+                    try await worker.create(text: text, to: conversation.id)
                 }
             } catch {
-                showError(.error(error))
+                state = .error(.error(error))
             }
         }
     }
@@ -71,7 +76,7 @@ class ConversationViewModel: BaseViewModel {
                 }
                 self.messages += messages
             } catch {
-                showError(.error(error))
+                state = .error(.error(error))
             }
         }
     }
@@ -91,7 +96,7 @@ class ConversationViewModel: BaseViewModel {
                     }
                 }
             } catch {
-                showError(.error(error))
+                state = .error(.error(error))
             }
         }
     }
