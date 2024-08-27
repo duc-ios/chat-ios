@@ -20,40 +20,8 @@ final class ConversationsViewModel: BaseViewModel {
     override init() {
         super.init()
 
-        AppSocketManager.default.on("message:create") { [weak self] data, _ in
-            guard let self,
-                  let data = data.first else { return }
-            do {
-                let message = try MessageModel(data)
-                for convoIdx in 0 ..< conversations.count {
-                    let convo = conversations[convoIdx]
-                    if convo.id == message.conversation?.id {
-                        convo.lastMessage = message
-                    }
-                    DispatchQueue.main.async { [weak self] in
-                        guard let self else { return }
-                        self.conversations = conversations
-                    }
-                }
-            } catch {
-                logger.error(error)
-            }
-        }
-
-        AppSocketManager.default.on("message:update") { [weak self] data, _ in
-            guard let self,
-                  let data = data.first else { return }
-            do {
-                let message = try MessageModel(data)
-                conversations.first(where: { $0.lastMessage?.id == message.id })?.lastMessage = message
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    self.conversations = conversations
-                }
-            } catch {
-                logger.error(error)
-            }
-        }
+        AppSocketManager.default.on("message:create", onMessageCreate)
+        AppSocketManager.default.on("message:update", onMessageUpdate)
 
         findConversations()
     }
@@ -81,7 +49,35 @@ final class ConversationsViewModel: BaseViewModel {
         }
     }
 
+    func onMessageCreate(_ data: [Any], _: Any) {
+        guard let data = data.first else { return }
+        do {
+            let message = try MessageModel(data)
+            for convoIdx in 0 ..< conversations.count {
+                let convo = conversations[convoIdx]
+                if convo.id == message.conversation?.id {
+                    convo.lastMessage = message
+                }
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    self.conversations = conversations
+                }
             }
+        } catch {
+            logger.error(error)
+        }
+    }
+
+    func onMessageUpdate(_ data: [Any], _: Any) {
+        do {
+            let message = try MessageModel(data)
+            conversations.first(where: { $0.lastMessage?.id == message.id })?.lastMessage = message
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.conversations = conversations
+            }
+        } catch {
+            logger.error(error)
         }
     }
 }

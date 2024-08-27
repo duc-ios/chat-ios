@@ -50,8 +50,7 @@ final class FriendsViewModel: BaseViewModel {
     }
 
     func findFriends() {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
+        Task { @MainActor in
             switch await worker.findFriends() {
             case var .success(friends):
                 for idx in 0 ..< friends.count {
@@ -64,6 +63,13 @@ final class FriendsViewModel: BaseViewModel {
         }
     }
 
+    func findConversation(recipentId: String) {
+        Task { @MainActor in
+            switch await worker.findConversation(recipentId: recipentId) {
+            case let .success(conversation):
+                state = .conversationFound(conversation)
+            case let .failure(error):
+                state = .error(error)
             }
         }
     }

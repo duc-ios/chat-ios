@@ -36,6 +36,8 @@ struct FriendsScene: View {
                                 }
                             }
                             Text(friend.username)
+                        }.onTapGesture {
+                            viewModel.findConversation(recipentId: friend.documentId)
                         }
                     }
                 }

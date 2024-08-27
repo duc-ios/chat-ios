@@ -36,7 +36,7 @@ struct ConversationsScene: View {
                                 CircleAvatar(url: sender?.avatar)
                                 VStack(alignment: .leading) {
                                     Text(conversation.name ?? sender?.username ?? "").fontWeight(.semibold)
-                                    if let lastMessage = conversation.lastMessage?.content {
+                                    if let lastMessage = conversation.lastMessage?.text {
                                         Text(lastMessage)
                                             .lineLimit(2)
                                     }

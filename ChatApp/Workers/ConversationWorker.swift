@@ -31,13 +31,13 @@ class ConversationWorker: APIWorker {
         }
     }
 
-    func findConversation(recipentId: Int?) async -> Result<ConversationModel, AppError> {
+    func findConversation(recipentId: String?) async -> Result<ConversationModel, AppError> {
         do {
             let json = try await request(
                 method: "GET",
                 path: "api/conversations",
                 queries: [
-                    "filters[recipentId]": recipentId?.stringValue,
+                    "filters[recipentId]": recipentId,
                 ]
             )
 
@@ -52,35 +52,31 @@ class ConversationWorker: APIWorker {
         }
     }
 
-    func findMessages(refId: String) async throws -> [MessageModel] {
+    func findMessages(conversationId: Int) async throws -> [MessageModel] {
         let json = try await request(method: "GET", path: "api/messages", queries: [
-            "populate": "sender",
-            "filters[conversation][refId]": refId,
+            "populate": "conversation",
+            "populate[sender][populate][avatar][fields]": "formats",
+            "filters[conversation]": conversationId.stringValue,
             "sort": "createdAt:desc",
         ])
         let result = json["data"].arrayValue
-        var messages = [MessageModel]()
-        for messageJson in result {
-            let message = try await buildMessage(json: messageJson)
-            messages.append(message)
-        }
+        var messages = try [MessageModel](result)
         return messages.reversed()
     }
 
     @discardableResult
-    func create(text: String, to conversationRefId: String) async throws -> String {
+    func create(text: String, to conversationId: Int) async throws -> String {
         let json = try await request(
             method: "POST",
             path: "api/messages",
-            queries: ["populate": "*"],
             body: [
                 "data": [
-                    "content": text,
-                    "conversation": conversationRefId,
+                    "text": text,
+                    "conversation": conversationId,
                 ],
             ]
         )
-        return json["data"]["id"].stringValue
+        return json["data"]["documentId"].stringValue
     }
 
     @discardableResult
@@ -90,11 +86,11 @@ class ConversationWorker: APIWorker {
             path: "api/messages/\(id)",
             body: [
                 "data": [
-                    "content": text,
+                    "text": text,
                 ],
             ]
         )
-        return json["data"]["id"].stringValue
+        return json["data"]["documentId"].stringValue
     }
 
     func buildMessage(json: JSON) async throws -> MessageModel {

@@ -11,11 +11,12 @@ import Foundation
 // MARK: - UserModel
 
 struct UserModel {
-    let id: Int
+    var id: Int = -1
+    var documentId: String = ""
     var socketId: String?
     var jwt: String?
-    let username: String
-    let avatar: URL?
+    var username: String
+    var avatar: URL?
     var isActive: Bool = false
 }
 
@@ -28,7 +29,7 @@ extension UserModel: Hashable, Identifiable {}
 extension UserModel: Codable {
     enum CodingKeys: CodingKey {
         case id,
-             socketId,
+             documentId,
              jwt,
              username,
              avatar
@@ -37,7 +38,7 @@ extension UserModel: Codable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(.id)
-        socketId = try container.decodeIfPresent(.socketId)
+        documentId = try container.decode(.documentId)
         jwt = try container.decodeIfPresent(.jwt)
         username = try container.decode(.username)
         if let avatar: Avatar = try? container.decode(.avatar) {

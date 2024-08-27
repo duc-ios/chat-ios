@@ -18,17 +18,17 @@ struct MessageBubble: View {
         VStack {
             HStack {
                 if isMine { Spacer() }
-                    VStack(alignment: isMine ? .trailing : .leading) {
-                        Text(message.content)
-                            .foregroundStyle(isMine ? .white : .black)
-                        
-                        Text(message.createdAt.formatted(.relative(presentation: .named)))
-                            .font(.callout)
-                            .foregroundStyle((isMine ? Color.white : .gray).opacity(0.5))
-                    }
-                    .padding(8)
-                    .background(ChatBubbleShape(direction: isMine ? .trailing : .leading))
-                    .foregroundColor(forgroundColor)
+                VStack(alignment: isMine ? .trailing : .leading) {
+                    Text(message.text)
+                        .foregroundStyle(isMine ? .white : .black)
+
+                    Text(message.createdAt.formatted(.relative(presentation: .named)))
+                        .font(.callout)
+                        .foregroundStyle((isMine ? Color.white : .gray).opacity(0.5))
+                }
+                .padding(8)
+                .background(ChatBubbleShape(direction: isMine ? .trailing : .leading))
+                .foregroundColor(forgroundColor)
                 if !isMine { CircleAvatar(url: message.sender?.avatar) }
             }
         }
@@ -108,9 +108,10 @@ struct ChatBubbleShape: Shape {
         MessageBubble(
             message: MessageModel(
                 id: 0,
-                content: "short text short text",
+                text: "short text short text",
                 sender: UserModel(
                     id: 0,
+                    documentId: "",
                     username: "duc",
                     avatar: URL(string: "https://i.pravatar.cc/150?img=67")
                 ),
@@ -121,9 +122,10 @@ struct ChatBubbleShape: Shape {
         MessageBubble(
             message: MessageModel(
                 id: 0,
-                content: "short text short text",
+                text: "short text short text",
                 sender: UserModel(
                     id: 0,
+                    documentId: "",
                     username: "duc",
                     avatar: URL(string: "https://i.pravatar.cc/150?img=67")
                 ),
@@ -134,9 +136,8 @@ struct ChatBubbleShape: Shape {
         MessageBubble(
             message: MessageModel(
                 id: 0,
-                content: "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text",
+                text: "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text",
                 sender: UserModel(
-                    id: 1,
                     username: "duc",
                     avatar: URL(string: "https://i.pravatar.cc/150?img=67")
                 ),
@@ -147,9 +148,8 @@ struct ChatBubbleShape: Shape {
         MessageBubble(
             message: MessageModel(
                 id: 0,
-                content: "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text",
+                text: "long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text",
                 sender: UserModel(
-                    id: 1,
                     username: "duc",
                     avatar: URL(string: "https://i.pravatar.cc/150?img=67")
                 ),

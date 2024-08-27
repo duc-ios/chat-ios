@@ -7,10 +7,12 @@
 
 import Foundation
 
+// MARK: - ConversationModel
+
 class ConversationModel: Codable {
     var id: Int
+    var documentId: String
     var name: String?
-    var refId: String
     var participants: [UserModel]?
     var lastMessage: MessageModel?
     var createdAt: Date
@@ -23,16 +25,22 @@ class ConversationModel: Codable {
         [any Hashable](arrayLiteral:
             id,
             name,
-            refId,
+            documentId,
             participants,
             lastMessage,
             createdAt).forEach { hasher.combine($0) }
     }
 
-    init(id: Int, name: String? = nil, refId: String, participants: [UserModel]? = nil, lastMessage: MessageModel? = nil, createdAt: Date) {
+    init(id: Int = -1,
+         documentId: String = "",
+         name: String? = nil,
+         participants: [UserModel]? = nil,
+         lastMessage: MessageModel? = nil,
+         createdAt: Date = Date())
+    {
         self.id = id
+        self.documentId = documentId
         self.name = name
-        self.refId = refId
         self.participants = participants
         self.lastMessage = lastMessage
         self.createdAt = createdAt
@@ -42,11 +50,13 @@ class ConversationModel: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(Int.self, forKey: .id)
         name = try container.decodeIfPresent(String.self, forKey: .name)
-        refId = try container.decode(String.self, forKey: .refId)
+        documentId = try container.decode(String.self, forKey: .documentId)
         participants = try container.decodeIfPresent([UserModel].self, forKey: .participants)
         lastMessage = try container.decodeIfPresent(MessageModel.self, forKey: .lastMessage)
         createdAt = try ISO8601DateFormatter().date(from: container.decodeIfPresent(String.self, forKey: .createdAt) ?? "") ?? Date()
     }
 }
+
+// MARK: Hashable, Identifiable
 
 extension ConversationModel: Hashable, Identifiable {}

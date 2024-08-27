@@ -121,10 +121,6 @@ extension ConversationScene {
 }
 
 #Preview {
-    ConversationScene().configure(conversation: try! ConversationModel([
-        "id": 1,
-        "refId": "1_2",
-        "name": "1_2",
-    ]))
-    .environmentObject(Router())
+    ConversationScene().configure(conversation: ConversationModel())
+        .environmentObject(Router())
 }
